@@ -10,14 +10,12 @@ const EditPost = () => {
   const [cat, setCat] = useState('');
   const [cats, setCats] = useState(['Tech', 'AI']);
 
-  // Add new category to list
   const addCategory = () => {
     if (cat.trim() === '') return;
     setCats([...cats, cat]);
     setCat('');
   };
 
-  // Remove category by index
   const deleteCategory = (index) => {
     const updated = [...cats];
     updated.splice(index, 1);
@@ -28,21 +26,22 @@ const EditPost = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
-      <div className="flex-grow px-6 md:px-[200px] mt-12 mb-12">
-        <h1 className="font-extrabold md:text-3xl text-2xl mb-8 text-center text-gray-800">
+      <div className="flex-grow px-4 sm:px-6 md:px-12 lg:px-[200px] py-12">
+        <h1 className="font-extrabold md:text-4xl text-2xl mb-10 text-center text-gray-800">
           ✏️ Edit Blog Post
         </h1>
 
-        <form className="w-full flex flex-col space-y-6 md:space-y-10 bg-white shadow-lg rounded-xl p-6 md:p-10 border border-gray-200">
-          {/* Title Input */}
+        <form className="w-full flex flex-col space-y-8 bg-white shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-100 transition-all">
+          
+          {/* Title */}
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Edit post title"
-            className="px-4 py-3 outline-none border border-gray-300 rounded-md focus:border-black focus:ring-2 focus:ring-gray-100 transition"
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none transition text-gray-700"
           />
 
-          {/* Existing Image (preview) */}
+          {/* Image Preview */}
           <img
             src={
               file
@@ -50,66 +49,67 @@ const EditPost = () => {
                 : 'https://miro.medium.com/v2/resize:fit:1100/1*JyoSgGJE0E7E5Wdl66WFjQ.png'
             }
             alt="Preview"
-            className="w-full h-64 object-cover rounded-md"
+            className="w-full h-64 object-cover rounded-lg border border-gray-300"
           />
 
           {/* File Upload */}
           <input
             type="file"
             onChange={(e) => setFile(e.target.files[0])}
-            className="px-4 py-3 border border-gray-300 rounded-md bg-gray-100"
+            className="px-4 py-3 border border-dashed border-gray-400 rounded-lg bg-gray-100 hover:border-black transition cursor-pointer file:cursor-pointer"
           />
 
           {/* Category Input */}
-          <div className="flex flex-col space-y-3">
-            <div className="flex flex-col md:flex-row md:items-center md:space-x-6 space-y-3 md:space-y-0">
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
               <input
                 value={cat}
                 onChange={(e) => setCat(e.target.value)}
                 placeholder="Enter post category"
-                className="px-4 py-3 outline-none border border-gray-300 rounded-md w-full"
-                type="text"
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none w-full"
               />
-              <div
+              <button
+                type="button"
                 onClick={addCategory}
-                className="bg-black hover:bg-gray-800 text-white px-6 py-2 font-medium rounded-md text-center cursor-pointer transition"
+                className="bg-black hover:bg-gray-900 text-white px-6 py-2 rounded-md font-semibold transition w-full sm:w-auto"
               >
                 ➕ Add Category
-              </div>
+              </button>
             </div>
 
-            {/* Category Pills */}
-            <div className="flex flex-wrap gap-3 mt-2">
+            {/* Category Tags */}
+            <div className="flex flex-wrap gap-3">
               {cats.map((c, i) => (
                 <div
                   key={i}
-                  className="flex items-center bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium"
+                  className="flex items-center bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium shadow-sm"
                 >
                   <span className="mr-2">{c}</span>
-                  <span
+                  <button
+                    type="button"
                     onClick={() => deleteCategory(i)}
-                    className="text-white bg-gray-800 hover:bg-black rounded-full p-1 cursor-pointer"
+                    className="text-white bg-gray-800 hover:bg-black rounded-full p-1 transition"
                   >
                     <ImCross size={10} />
-                  </span>
+                  </button>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Description Textarea */}
+          {/* Description */}
           <textarea
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             rows={10}
-            className="px-4 py-3 outline-none border border-gray-300 rounded-md resize-none focus:border-black focus:ring-2 focus:ring-gray-100"
+            className="px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-black focus:outline-none text-gray-700"
             placeholder="Edit your post description..."
           />
 
           {/* Update Button */}
           <button
             type="submit"
-            className="bg-black hover:bg-gray-900 w-full md:w-[30%] mx-auto text-white font-semibold px-6 py-3 rounded-md transition"
+            className="bg-black hover:bg-gray-900 w-full sm:w-[40%] mx-auto text-white font-semibold px-6 py-3 rounded-lg transition"
           >
             ✅ Update Post
           </button>
