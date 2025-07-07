@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Wrong credentials" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "3d" });
+    const token = jwt.sign({_id: user._id,username:user.username,email:user.email }, process.env.SECRET, { expiresIn: "3d" });
     const { password: pass, ...info } = user._doc;
     res.cookie("token", token, { httpOnly: true }).status(200).json(info);
 
@@ -70,5 +70,20 @@ router.get("/logout",async(req,res)=>
     res.status(500).json(error);
   }
 })
+//REFETCH USER
+router.get("/refetch", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  jwt.verify(token, process.env.SECRET, {}, async (err, data) => {
+    if (err) {
+      return res.status(403).json({ message: "Token invalid", error: err });
+    }
+    return res.status(200).json(data);
+  });
+});
+
 
 export default router;

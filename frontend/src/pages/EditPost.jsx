@@ -1,14 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ImCross } from 'react-icons/im';
+import { UserContext } from '../context/UserContext';
+import { URL } from '../url';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const EditPost = () => {
-  const [title, setTitle] = useState('10 Uses of Artificial Intelligence');
-  const [desc, setDesc] = useState('AI is revolutionizing industries such as healthcare, transportation, and education...');
+  const { id: postId } = useParams();
+  const navigate = useNavigate();
+
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
   const [file, setFile] = useState(null);
+  const { user } = useContext(UserContext);
   const [cat, setCat] = useState('');
-  const [cats, setCats] = useState(['Tech', 'AI']);
+  const [cats, setCats] = useState([]);
+  const [preview, setPreview] = useState('');
+
+  // Fetch post data on mount
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await axios.get(`${URL}/api/posts/${postId}`);
+        setTitle(res.data.title);
+        setDesc(res.data.desc);
+        setCats(res.data.categories);
+        setPreview(res.data.photo);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchPost();
+  }, [postId]);
 
   const addCategory = () => {
     if (cat.trim() === '') return;
@@ -22,6 +48,41 @@ const EditPost = () => {
     setCats(updated);
   };
 
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    const updatedPost = {
+      title,
+      desc,
+      categories: cats,
+      username: user.username,
+      userId: user._id,
+    };
+
+    if (file) {
+      const data = new FormData();
+      const filename = Date.now() + file.name;
+      data.append('img', filename);
+      data.append('file', file);
+      updatedPost.photo = filename;
+
+      try {
+        await axios.post(`${URL}/api/upload`, data);
+      } catch (err) {
+        console.log('Image upload failed:', err);
+      }
+    }
+
+    try {
+      await axios.put(`${URL}/api/posts/${postId}`, updatedPost, {
+        withCredentials: true,
+      });
+      navigate(`/posts/post/${postId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -31,14 +92,13 @@ const EditPost = () => {
           ✏️ Edit Blog Post
         </h1>
 
-        <form className="w-full flex flex-col space-y-8 bg-white shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-100 transition-all">
-          
+        <form className="w-full flex flex-col space-y-8 bg-white shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-100">
           {/* Title */}
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Edit post title"
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none transition text-gray-700"
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none text-gray-700"
           />
 
           {/* Image Preview */}
@@ -46,7 +106,9 @@ const EditPost = () => {
             src={
               file
                 ? URL.createObjectURL(file)
-                : 'https://miro.medium.com/v2/resize:fit:1100/1*JyoSgGJE0E7E5Wdl66WFjQ.png'
+                : preview
+                ? `${URL}/images/${preview}`
+                : 'https://via.placeholder.com/600x300?text=No+Image'
             }
             alt="Preview"
             className="w-full h-64 object-cover rounded-lg border border-gray-300"
@@ -56,7 +118,7 @@ const EditPost = () => {
           <input
             type="file"
             onChange={(e) => setFile(e.target.files[0])}
-            className="px-4 py-3 border border-dashed border-gray-400 rounded-lg bg-gray-100 hover:border-black transition cursor-pointer file:cursor-pointer"
+            className="px-4 py-3 border border-dashed border-gray-400 rounded-lg bg-gray-100 hover:border-black transition cursor-pointer"
           />
 
           {/* Category Input */}
@@ -108,10 +170,10 @@ const EditPost = () => {
 
           {/* Update Button */}
           <button
-            type="submit"
+            onClick={handleUpdate}
             className="bg-black hover:bg-gray-900 w-full sm:w-[40%] mx-auto text-white font-semibold px-6 py-3 rounded-lg transition"
           >
-            ✅ Update Post
+            Update Post
           </button>
         </form>
       </div>

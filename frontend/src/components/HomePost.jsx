@@ -1,29 +1,39 @@
 import React from 'react';
+import { IF } from '../url';
 
-const HomePost = () => {
+const HomePost = ({ post }) => {
+  const createdAt = new Date(post.updatedAt);
+  const date = createdAt.toLocaleDateString();
+  const time = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
   return (
-    <div className="w-full flex mt-8 space-x-4">
-      <div className="w-[35%] h-[200px] flex justify-center items-center bg-gray-100">
-        <img 
-          src="" 
-          alt="Post Thumbnail" 
-          className="h-full w-full object-cover rounded"
+    <div className="w-full flex flex-col md:flex-row mt-10 p-4 rounded-lg shadow-md hover:shadow-xl transition duration-300 bg-white border border-gray-200">
+      {/* Image */}
+      <div className="w-full md:w-[35%] h-[200px] overflow-hidden rounded-lg">
+        <img
+          src={`${IF}${post.photo}`}
+          alt={post.title}
+          className="w-full h-full object-cover transform hover:scale-105 transition duration-300 rounded-lg"
         />
       </div>
 
-      <div className="flex flex-col w-[65%]">
-        <h1 className="text-xl font-bold mb-1 md:mb-2 md:text-3xl">
-          10 Uses of Artificial Intelligence
+      {/* Content */}
+      <div className="flex flex-col w-full md:w-[65%] md:pl-6 mt-4 md:mt-0">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2 hover:text-indigo-600 transition duration-200">
+          {post.title}
         </h1>
-        <div className="flex justify-between items-center text-sm font-semibold text-gray-500 mb-2 md:mb-4">
-          <p>@Prithiraj</p>
+
+        <div className="flex justify-between items-center text-sm font-medium text-gray-500 mb-3">
+          <p>By <span className="text-black font-semibold">{post.username}</span></p>
           <div className="flex space-x-2">
-            <p>16/06/2023</p>
-            <p>16:45</p>
+            <p>{date}</p>
+            <p>{time}</p>
           </div>
         </div>
-        <p className="text-sm md:text-lg">
-          Prominent examples of AI software include voice assistants and more advanced automation tools that learn from data.
+
+        <p className="text-gray-700 text-base leading-relaxed line-clamp-3">
+          {post.desc.slice(0, 200)}
+          <span className="text-blue-600 cursor-pointer hover:underline">... Read more</span>
         </p>
       </div>
     </div>

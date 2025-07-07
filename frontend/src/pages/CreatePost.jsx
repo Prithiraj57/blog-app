@@ -1,101 +1,147 @@
-import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ImCross } from 'react-icons/im';
+import { useContext, useState } from 'react';
+import { UserContext } from '../context/UserContext';
+import { URL } from '../url';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null);
-  const [cat, setCat] = useState('');
+  const { user } = useContext(UserContext);
+  const [cat, setCat] = useState("");
   const [cats, setCats] = useState([]);
+  const navigate = useNavigate();
 
-  const addCategory = () => {
-    if (cat.trim() === '') return;
-    const updatedCats = [...cats];
-    updatedCats.push(cat);
-    setCats(updatedCats);
-    setCat('');
+  const deleteCategory = (i) => {
+    const updated = [...cats];
+    updated.splice(i, 1); 
+    setCats(updated);
   };
 
-  const deleteCategory = (index) => {
-    const updatedCats = [...cats];
-    updatedCats.splice(index, 1);
-    setCats(updatedCats);
+  const addCategory = () => {
+    if (cat.trim() !== "") {
+      setCats([...cats, cat.trim()]);
+      setCat("");
+    }
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    const post = {
+      title,
+      desc,
+      username: user.username,
+      userId: user._id,
+      categories: cats,
+    };
+
+    if (file) {
+      const data = new FormData();
+      const filename = Date.now() + file.name;
+      data.append("img", filename);
+      data.append("file", file);
+      post.photo = filename;
+
+      try {
+        await axios.post(URL + "/api/upload", data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    try {
+      const res = await axios.post(URL + "/api/posts/write", post, { withCredentials: true });
+      navigate("/posts/post/" + res.data._id);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div>
       <Navbar />
+      <div className="px-6 md:px-[200px] py-12 bg-gray-50 min-h-screen">
+        <h1 className="font-bold md:text-3xl text-2xl text-center mb-8">Create a New Post</h1>
 
-      <div className="flex-grow px-6 md:px-[200px] mt-12 mb-12">
-        <h1 className="font-extrabold md:text-3xl text-2xl mb-8 text-center text-gray-800">
-          ✍️ Create a New Blog Post
-        </h1>
-
-        <form className="w-full flex flex-col space-y-6 md:space-y-10 bg-white shadow-lg rounded-xl p-6 md:p-10 border border-gray-200">
+        <form
+          onSubmit={handleCreate}
+          className="w-full flex flex-col space-y-6 bg-white p-6 md:p-10 rounded-lg shadow-md"
+        >
+          {/* Title */}
           <input
-            value={title}
             onChange={(e) => setTitle(e.target.value)}
+            type="text"
             placeholder="Enter post title"
-            className="px-4 py-3 outline-none border border-gray-300 rounded-md"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           />
 
-          <input
-            type="file"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="px-4 py-3 border border-gray-300 rounded-md bg-gray-100"
-          />
+          {/* File */}
+          <label className="flex flex-col items-start space-y-2 text-gray-600">
+            <span className="text-sm font-medium">Upload Image</span>
+            <input
+              onChange={(e) => setFile(e.target.files[0])}
+              type="file"
+              className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+            />
+          </label>
 
-          <div className="flex flex-col space-y-3">
-            <div className="flex flex-col md:flex-row md:items-center md:space-x-6 space-y-3 md:space-y-0">
+          {/* Categories */}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-4">
               <input
                 value={cat}
                 onChange={(e) => setCat(e.target.value)}
-                className="px-4 py-3 outline-none border border-gray-300 rounded-md w-full"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                 placeholder="Enter post category"
                 type="text"
               />
-              <div
+              <button
+                type="button"
                 onClick={addCategory}
-                className="bg-black text-white px-6 py-2 font-medium rounded-md text-center cursor-pointer"
+                className="bg-black text-white px-4 py-2 rounded-md font-medium hover:bg-gray-800 transition"
               >
-                ➕ Add Category
-              </div>
+                Add
+              </button>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-2">
-              {cats.map((cat, i) => (
+            {/* Display added categories */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {cats.map((c, i) => (
                 <div
                   key={i}
-                  className="flex items-center bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium"
+                  className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full text-sm"
                 >
-                  <span className="mr-2">{cat}</span>
-                  <span
+                  <span>{c}</span>
+                  <ImCross
                     onClick={() => deleteCategory(i)}
-                    className="text-white bg-gray-800 hover:bg-black rounded-full p-1 cursor-pointer"
-                  >
-                    <ImCross size={10} />
-                  </span>
+                    className="text-red-500 hover:text-red-700 cursor-pointer"
+                  />
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Description */}
           <textarea
-            value={desc}
             onChange={(e) => setDesc(e.target.value)}
             rows={10}
-            className="px-4 py-3 outline-none border border-gray-300 rounded-md resize-none"
-            placeholder="Write your post description..."
+            placeholder="Enter post description"
+            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
           />
 
-          <button className="bg-black hover:bg-gray-900 w-full md:w-[30%] mx-auto text-white font-semibold px-6 py-3 rounded-md transition">
-            🚀 Publish Post
+          {/* Submit */}
+          <button
+            type="submit"
+            className="bg-black w-full md:w-1/3 mx-auto text-white font-semibold px-4 py-3 rounded-md text-lg hover:bg-gray-800 transition"
+          >
+            Create Post
           </button>
         </form>
       </div>
-
       <Footer />
     </div>
   );

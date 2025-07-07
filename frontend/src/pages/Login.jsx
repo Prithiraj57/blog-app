@@ -1,8 +1,31 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
+import axios from 'axios';
+import { URL } from '../url';
+import { UserContext } from '../context/UserContext';
 
 const Login = () => {
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const [error,setError]=useState(false);
+  const {setUser}=useContext(UserContext)
+  const navigate=useNavigate();
+  const handleLogin=async()=>
+  {
+    try{
+    const res=await axios.post(URL+"/api/auth/login",{email,password},{withCredentials:true});
+    //console.log("login successfull")
+    setUser(res.data);
+     navigate("/")
+    }
+    catch(error)
+    {
+      setError(true);
+      console.log(error);
+    }
+  }
   return (
     <>
       {/* Navbar */}
@@ -22,21 +45,21 @@ const Login = () => {
             Log in to your account
           </h1>
 
-          <input
+          <input onChange={(e)=>setEmail(e.target.value)}
             className="w-full px-4 py-3 border border-black rounded outline-none"
             type="email"
             placeholder="Enter email"
           />
-          <input
+          <input onChange={(e)=>setPassword(e.target.value)}
             className="w-full px-4 py-3 border border-black rounded outline-none"
             type="password"
             placeholder="Enter password"
           />
 
-          <button className="w-full px-4 py-3 text-lg font-bold text-white bg-black rounded hover:bg-gray-700 hover:text-white">
+          <button onClick={handleLogin} className="w-full px-4 py-3 text-lg font-bold text-white bg-black rounded hover:bg-gray-700 hover:text-white">
             Log In
           </button>
-
+          {error && <h3 className="text-red-500 text-sm">Something went wrong</h3>}
           <div className="flex justify-center items-center space-x-2 text-sm">
             <p>New here?</p>
             <Link to="/register" className="text-blue-500 hover:underline">Register</Link>
