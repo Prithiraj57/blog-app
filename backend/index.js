@@ -24,9 +24,9 @@ const __dirname = dirname(__filename);
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
-    console.log("✅ Database is connected successfully!");
+    console.log(" Database is connected successfully!");
   } catch (err) {
-    console.error("❌ MongoDB connection error:", err);
+    console.error(" MongoDB connection error:", err);
   }
 };
 
@@ -46,13 +46,13 @@ const storage = multer.diskStorage({
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, req.body.img); // Frontend must send `img` in FormData
+    cb(null, req.body.img); 
   }
 });
 
 const upload = multer({ storage });
 app.post("/api/upload", upload.single("file"), (req, res) => {
-  res.status(200).json("✅ Image has been uploaded successfully!");
+  res.status(200).json(" Image has been uploaded successfully!");
 });
 
 // Start server
