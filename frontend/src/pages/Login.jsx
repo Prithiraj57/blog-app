@@ -31,7 +31,7 @@ const Login = () => {
       {/* Navbar */}
       <div className="flex items-center justify-between px-6 md:px-[200px] py-4 bg-gray-900 text-white">
         <h1 className="text-lg md:text-xl font-extrabold">
-          <Link to="/">Blog Yours</Link>
+          <Link to="/">BlogKaro</Link>
         </h1>
         <div className="space-x-4">
           <Link to="/register" className="hover:underline">Register</Link>

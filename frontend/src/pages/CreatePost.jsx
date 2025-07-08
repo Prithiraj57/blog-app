@@ -18,7 +18,7 @@ const CreatePost = () => {
 
   const deleteCategory = (i) => {
     const updated = [...cats];
-    updated.splice(i, 1); 
+    updated.splice(i, 1);
     setCats(updated);
   };
 
@@ -54,7 +54,9 @@ const CreatePost = () => {
     }
 
     try {
-      const res = await axios.post(URL + "/api/posts/write", post, { withCredentials: true });
+      const res = await axios.post(URL + "/api/posts/write", post, {
+        withCredentials: true,
+      });
       navigate("/posts/post/" + res.data._id);
     } catch (err) {
       console.log(err);
@@ -64,7 +66,8 @@ const CreatePost = () => {
   return (
     <div>
       <Navbar />
-      <div className="px-6 md:px-[200px] py-12 bg-gray-50 min-h-screen">
+      <div className="px-6 md:px-[200px] pt-24 pb-12 bg-gray-50 min-h-screen">
+        {/* ⬆ pt-24 gives space for fixed navbar */}
         <h1 className="font-bold md:text-3xl text-2xl text-center mb-8">Create a New Post</h1>
 
         <form

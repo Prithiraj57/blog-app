@@ -50,27 +50,39 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Wrong credentials" });
     }
 
-    const token = jwt.sign({_id: user._id,username:user.username,email:user.email }, process.env.SECRET, { expiresIn: "3d" });
+    const token = jwt.sign(
+      { _id: user._id, username: user.username, email: user.email },
+      process.env.SECRET,
+      { expiresIn: "3d" }
+    );
+
     const { password: pass, ...info } = user._doc;
-    res.cookie("token", token, { httpOnly: true }).status(200).json(info);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+    }).status(200).json(info);
 
   } catch (error) {
     res.status(500).json({ message: "Login failed", error: error.message });
   }
 });
-//Logout 
-router.get("/logout",async(req,res)=>
-{
-  try{
-    res.clearCookie("token",{sameSite:"none",secure:true}).status(200).send("User logged out Successfully")
 
+// LOGOUT
+router.get("/logout", async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure: process.env.NODE_ENV === "production",
+    }).status(200).send("User logged out successfully");
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed", error: error.message });
   }
-  catch(error)
-  {
-    res.status(500).json(error);
-  }
-})
-//REFETCH USER
+});
+
+// REFETCH USER
 router.get("/refetch", (req, res) => {
   const token = req.cookies.token;
   if (!token) {
@@ -79,11 +91,10 @@ router.get("/refetch", (req, res) => {
 
   jwt.verify(token, process.env.SECRET, {}, async (err, data) => {
     if (err) {
-      return res.status(403).json({ message: "Token invalid", error: err });
+      return res.status(403).json({ message: "Invalid token", error: err });
     }
     return res.status(200).json(data);
   });
 });
-
 
 export default router;

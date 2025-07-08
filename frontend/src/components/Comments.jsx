@@ -1,52 +1,54 @@
-import React from 'react';
-import { BiEdit } from 'react-icons/bi';
+import React, { useContext } from 'react';
 import { MdDelete } from 'react-icons/md';
+import axios from 'axios';
+import { URL } from '../url.js';
+import { UserContext } from '../context/UserContext.jsx';
 
-const Comments = () => {
-  const dummyComments = [
-    {
-      username: '@senhashish',
-      date: '16/06/2023',
-      time: '16:45',
-      text: 'This is a very insightful post about AI!',
-    },
-    {
-      username: '@prithiraj',
-      date: '17/06/2023',
-      time: '10:12',
-      text: 'Thanks for sharing this, really helpful.',
-    },
-    {
-      username: '@tech_guru',
-      date: '18/06/2023',
-      time: '08:30',
-      text: 'AI is definitely transforming the future!',
-    },
-  ];
+const Comments = ({ c, post, onDelete }) => {
+  const { user } = useContext(UserContext);
+
+  const deleteComment = async () => {
+    try {
+      await axios.delete(`${URL}/api/comments/${c._id}`, { withCredentials: true });
+      onDelete(c._id); 
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <div className="mt-10">
-      <h3 className="text-lg font-semibold mb-4">Comments</h3>
+    <div className="relative px-5 py-4 bg-gradient-to-br from-pink-100 to-blue-100 border border-pink-200 rounded-2xl shadow-md my-5 transition-transform hover:scale-[1.01]">
+      {/* Top row: author + delete */}
+      <div className="flex justify-between items-start">
+        <h3 className="font-bold text-purple-700 tracking-wide text-sm md:text-base">
+          {user?._id === c?.userId ? (
+            <span className="bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full text-xs md:text-sm shadow-sm">You</span>
+          ) : (
+            `@${c.author}`
+          )}
+        </h3>
 
-      {dummyComments.map((comment, index) => (
-        <div
-          key={index}
-          className="px-4 py-3 bg-gray-200 rounded-lg mb-4 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="font-bold text-gray-700">{comment.username}</h3>
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <p>{comment.date}</p>
-              <p>{comment.time}</p>
-              <div className="flex items-center space-x-2 text-black text-lg">
-                <BiEdit className="cursor-pointer" />
-                <MdDelete className="cursor-pointer" />
-              </div>
-            </div>
-          </div>
-          <p className="text-sm text-gray-800">{comment.text}</p>
-        </div>
-      ))}
+        {(user && (user._id === post?.userId || user._id === c?.userId)) && (
+          <button
+            className="text-red-500 hover:text-red-700 transition"
+            onClick={deleteComment}
+            title="Delete comment"
+          >
+            <MdDelete className="text-xl" />
+          </button>
+        )}
+      </div>
+
+      {/* Comment text */}
+      <p className="mt-3 text-gray-800 font-medium leading-relaxed tracking-wide">
+        {c.comment}
+      </p>
+
+      {/* Timestamp */}
+      <div className="text-[11px] md:text-xs text-right text-gray-600 mt-3 italic">
+        {new Date(c.updatedAt).toLocaleDateString()} •{' '}
+        {new Date(c.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </div>
     </div>
   );
 };
