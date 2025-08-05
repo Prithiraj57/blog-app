@@ -13,7 +13,6 @@ const Home = () => {
   const [noResults, setNoResults] = useState(false);
   const [loader, setLoader] = useState(false);
   const { search } = useLocation();
-  const { user } = useContext(UserContext); // ✅ FIXED
 
   const fetchPosts = async () => {
     setLoader(true);
@@ -43,7 +42,7 @@ const Home = () => {
           </div>
         ) : !noResults ? (
           posts.map((post) => (
-            <Link to={user ? `/posts/post/${post._id}` : "/login"} key={post._id}>
+            <Link to={`/posts/post/${post._id}`} key={post._id}>
               <HomePost post={post} />
             </Link>
           ))
