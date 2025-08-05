@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
-import Navbar from '../components/Navbar';
+import React, { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import HomePost from '../components/HomePost';
 import axios from 'axios';
 import { URL } from '../url';
 import { useLocation, Link } from 'react-router-dom';
 import Loader from '../components/Loader';
-import { UserContext } from '../context/UserContext';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -34,7 +32,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <div className="flex-grow px-8 md:px-[200px] mt-[100px]">
         {loader ? (
           <div className="h-[40vh] flex justify-center items-center">
