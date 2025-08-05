@@ -4,7 +4,7 @@ import { BsSearch } from 'react-icons/bs';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import { UserContext } from '../context/UserContext';
-
+import { URL } from '../url';
 const Navbar = () => {
   const [prompt, setPrompt] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,15 +17,15 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      await axios.post("/api/auth/logout", {}, { withCredentials: true });
-      setUser(null);
-      setMenuOpen(false);
-      navigate("/login");
-    } catch (err) {
-      console.log("Logout error:", err);
-    }
-  };
+  try {
+    await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true });
+    setUser(null);
+    setMenuOpen(false);
+    navigate("/login");
+  } catch (err) {
+    console.log("Logout error:", err);
+  }
+};
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-purple-700 via-indigo-600 to-pink-600 text-white shadow-md">

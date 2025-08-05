@@ -18,7 +18,7 @@ const Menu = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true }); // ✅ Corrected
+      await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true }); 
       setUser(null);
       navigate("/login");
     } catch (err) {
