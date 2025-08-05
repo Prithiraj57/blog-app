@@ -3,15 +3,13 @@ import axios from 'axios';
 import { UserContext } from '../context/UserContext';
 import { URL } from "../url";
 import { Link, useNavigate } from 'react-router-dom';
-
-// Icons
 import {
   FaUser,
   FaPen,
   FaSignOutAlt,
   FaSignInAlt,
   FaUserPlus,
-  FaBlog,
+  FaBlog
 } from 'react-icons/fa';
 
 const Menu = () => {
@@ -20,11 +18,11 @@ const Menu = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true }); // ✅ Corrected
       setUser(null);
-      navigate('/login');
+      navigate("/login");
     } catch (err) {
-      console.log('Logout error:', err);
+      console.log("Logout error:", err);
     }
   };
 
