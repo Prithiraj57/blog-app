@@ -21,12 +21,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // MongoDB connection
+// const connectDB = async () => {
+//   try {
+//     await mongoose.connect(process.env.MONGO_URL);
+//     console.log(" Database is connected successfully!");
+//   } catch (err) {
+//     console.error(" MongoDB connection error:", err);
+//   }
+// };
+
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
-    console.log(" Database is connected successfully!");
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
-    console.error(" MongoDB connection error:", err);
+    console.error(`Error: ${err.message}`);
+    process.exit(1);
   }
 };
 
