@@ -1,100 +1,70 @@
 import express from 'express';
-import { User } from '../models/User.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/User.js';
 
 const router = express.Router();
 
-// REGISTER
-router.post("/register", async (req, res) => {
+// Register
+router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username or Email already exists' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
 
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPass,
+    res.status(201).json({ message: 'Registration successful' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Login
+router.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const validPass = await bcrypt.compare(password, user.password);
+    if (!validPass) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 24 * 60 * 60 * 1000
     });
 
-    const savedUser = await newUser.save();
-    res.status(200).json(savedUser);
-    
-  } catch (error) {
-    res.status(500).json({ message: "Registration failed", error: error.message });
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
-// LOGIN
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({ message: "Wrong credentials" });
-    }
-
-    const token = jwt.sign(
-      { _id: user._id, username: user.username, email: user.email },
-      process.env.SECRET,
-      { expiresIn: "3d" }
-    );
-
-    const { password: pass, ...info } = user._doc;
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-    }).status(200).json(info);
-
-  } catch (error) {
-    res.status(500).json({ message: "Login failed", error: error.message });
-  }
-});
-
-// LOGOUT
-router.get("/logout", async (req, res) => {
-  try {
-    res.clearCookie("token", {
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      secure: process.env.NODE_ENV === "production",
-    }).status(200).send("User logged out successfully");
-  } catch (error) {
-    res.status(500).json({ message: "Logout failed", error: error.message });
-  }
-});
-
-// REFETCH USER
-router.get("/refetch", (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ message: "Not logged in" });
-  }
-
-  jwt.verify(token, process.env.SECRET, {}, async (err, data) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token", error: err });
-    }
-    return res.status(200).json(data);
+// Logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None'
   });
+  res.status(200).json({ message: 'Logged out successfully' });
 });
 
 export default router;

@@ -6,21 +6,25 @@ import { Link, useNavigate } from 'react-router-dom';
 
 // Icons
 import {
-  FaUser, FaPen, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaBlog
+  FaUser,
+  FaPen,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+  FaBlog,
 } from 'react-icons/fa';
 
 const Menu = () => {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  
   const handleLogout = async () => {
     try {
-      await axios.get(`${URL}/api/auth/logout`, { withCredentials: true });
+      await axios.post(`${URL}/api/auth/logout`, {}, { withCredentials: true });
       setUser(null);
-      navigate("/login");
+      navigate('/login');
     } catch (err) {
-      console.log("Logout error:", err);
+      console.log('Logout error:', err);
     }
   };
 
