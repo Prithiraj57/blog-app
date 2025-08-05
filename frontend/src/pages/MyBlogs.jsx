@@ -35,7 +35,6 @@ const MyBlogs = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      <Navbar />
 
       <div className="flex-grow pt-24 px-4 md:px-[200px]">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-10">

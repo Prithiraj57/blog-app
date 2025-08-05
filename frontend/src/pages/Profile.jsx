@@ -77,7 +77,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
       <div className="flex-grow px-4 sm:px-6 md:px-12 lg:px-[200px] pt-28 pb-16 flex flex-col-reverse md:flex-row md:items-start gap-y-16 md:gap-x-16">
         
         {/* Posts Section */}

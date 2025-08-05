@@ -65,7 +65,6 @@ const CreatePost = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="px-6 md:px-[200px] pt-24 pb-12 bg-gray-50 min-h-screen">
         {/* ⬆ pt-24 gives space for fixed navbar */}
         <h1 className="font-bold md:text-3xl text-2xl text-center mb-8">Create a New Post</h1>

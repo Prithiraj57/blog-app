@@ -85,7 +85,6 @@ const EditPost = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
 
       <div className="flex-grow px-4 sm:px-6 md:px-12 lg:px-[200px] py-12">
         <h1 className="font-extrabold md:text-4xl text-2xl mb-10 text-center text-gray-800">
